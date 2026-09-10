@@ -1,30 +1,25 @@
 # Connectors
 
-Work branch for wiring every Superhuman tab to a mock feed.
-No real passwords. Each connector writes into one tab (or two, if the spine already does that).
+All 13 feeds are in the Connectors panel. Connect is mock until you fill `.env.example`.
+The panel stays simple — name, on/off, Connect / Sync / Disconnect. Keys are not collected in the app.
 
-## Already in the panel
+Copy `.env.example` to `.env` when you go live. Values are server-side (no `VITE_` prefix).
 
-| Connector | Lands in | Status |
-| --- | --- | --- |
-| Google (Gmail, Calendar, Contacts) | Work | mock, connected in seed |
-| Apple Health | Health | mock, connected in seed |
-| WhatsApp | Work · Notes | mock, off |
-| MakeMyTrip | Travel | mock, off |
-| Airbnb | Travel | mock, off |
-
-## Still to add
-
-| Connector | Lands in | Why |
-| --- | --- | --- |
-| UltraHuman | Health | ring vitals, glucose, strain |
-| YouTube | Growth · Enjoy | library / subscriptions |
-| Spotify | Growth · Enjoy | library / playlists |
-| Bank / UPI (HDFC + UPI) | Finance | balances, UPI, bills |
-| GST / invoices | Businesses | retainers, CPL, pots |
-| Google Drive | Files | vault folders |
-| Amazon / BigBasket | Shopping | lists, price watch |
+| Connector | Lands in |
+| --- | --- |
+| Google (Gmail, Calendar, Contacts) | Work |
+| WhatsApp | Work · Notes |
+| Apple Health | Health |
+| UltraHuman | Health |
+| MakeMyTrip | Travel |
+| Airbnb | Travel |
+| Bank / UPI | Finance |
+| GST / invoices | Businesses |
+| YouTube | Growth · Enjoy |
+| Spotify | Growth · Enjoy |
+| Amazon | Shopping |
+| BigBasket | Shopping |
+| Google Drive | Files |
 
 Sign-in (Google, X, email/password) stays on the auth stack — not this catalog.
-
-When a connector is on, it only writes timeline events for its tab. Contributors never see each other.
+When a connector is on, it only writes into its tab. Contributors never see each other.
