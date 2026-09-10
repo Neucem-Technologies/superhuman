@@ -1,16 +1,33 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Badge, Button, Modal } from "@/components/ui/primitives";
+import { cn } from "@/lib/utils";
 import { useAppStore } from "@/spine/store";
-import { CONNECTOR_CATALOG, catalogOf } from "@/spine/connectors";
+import { CONNECTOR_CATALOG, CONNECTOR_GROUPS, catalogOf, type ConnectorGroupId } from "@/spine/connectors";
 import { SELF_ID, type ConnectorId } from "@/spine/types";
+
+type Filter = "all" | ConnectorGroupId | "live" | "off";
 
 export function ConnectorsPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const connectors = useAppStore((s) => s.connectors ?? []);
   const act = useAppStore((s) => s.act);
   const actorId = useAppStore((s) => s.actorId);
   const [busy, setBusy] = useState<ConnectorId | null>(null);
+  const [filter, setFilter] = useState<Filter>("all");
   const mine = actorId === SELF_ID;
+
+  const liveCount = connectors.filter((c) => c.status === "connected").length;
+
+  const rows = useMemo(() => {
+    return CONNECTOR_CATALOG.filter((c) => {
+      const row = connectors.find((x) => x.id === c.id);
+      const on = row?.status === "connected";
+      if (filter === "live") return on;
+      if (filter === "off") return !on;
+      if (filter === "all") return true;
+      return c.group === filter;
+    });
+  }, [connectors, filter]);
 
   async function run(id: ConnectorId, type: "connector.connect" | "connector.sync" | "connector.disconnect") {
     if (!mine) {
@@ -25,58 +42,70 @@ export function ConnectorsPanel({ open, onClose }: { open: boolean; onClose: () 
       toast.error(r.error);
       return;
     }
-    const name = catalogOf(id).label;
-    toast(type === "connector.disconnect" ? `${name} disconnected` : type === "connector.sync" ? `${name} synced` : `${name} connected · mock API`);
+    const name = catalogOf(id)?.label ?? id;
+    toast(type === "connector.disconnect" ? `${name} disconnected` : type === "connector.sync" ? `${name} synced` : `${name} connected`);
   }
 
   return (
     <Modal open={open} onClose={onClose} title="Connectors">
       <p className="text-xs text-muted">
-        Mock APIs only — no real passwords. Each feed writes into the tab it belongs to.
+        {liveCount} of {CONNECTOR_CATALOG.length} linked. Each feed stays in its own tab.
       </p>
-      <div className="max-h-[65dvh] space-y-2 overflow-y-auto">
-        {CONNECTOR_CATALOG.map((c) => {
+      <div className="flex flex-wrap gap-1">
+        {(
+          [
+            { id: "all" as const, label: "All" },
+            { id: "live" as const, label: "Linked" },
+            { id: "off" as const, label: "Off" },
+            ...CONNECTOR_GROUPS,
+          ] as { id: Filter; label: string }[]
+        ).map((g) => (
+          <button
+            key={g.id}
+            type="button"
+            onClick={() => setFilter(g.id)}
+            className={cn(
+              "h-8 rounded-sm px-2.5 text-xs",
+              filter === g.id ? "bg-foreground text-background" : "bg-elevated text-muted shadow-border",
+            )}
+          >
+            {g.label}
+          </button>
+        ))}
+      </div>
+      <div className="space-y-2">
+        {rows.map((c) => {
           const row = connectors.find((x) => x.id === c.id);
           const on = row?.status === "connected";
           const pending = busy === c.id;
           return (
-            <div key={c.id} className="rounded-md bg-elevated p-3 shadow-border">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium">{c.label}</p>
-                  <p className="text-xs text-muted">{c.blurb}</p>
-                  <p className="mt-1 text-xs text-subtle">
-                    {on ? row?.account : "Not linked"} · {c.tabs}
-                    {on && row?.lastSync ? ` · ${ago(row.lastSync)}` : ""}
-                  </p>
+            <div key={c.id} className="flex items-center gap-3 rounded-md bg-elevated p-3 shadow-border">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-sm font-medium">{c.label}</p>
+                  <Badge tone={on ? "ok" : "neutral"}>{pending ? "…" : on ? "On" : "Off"}</Badge>
                 </div>
-                <Badge tone={on ? "ok" : "neutral"}>{pending ? "…" : on ? "Live" : "Off"}</Badge>
+                <p className="mt-0.5 truncate text-xs text-muted">
+                  {on ? (row?.account ?? c.account) : c.blurb}
+                  {on && row?.lastSync ? ` · ${ago(row.lastSync)}` : ""}
+                </p>
               </div>
-              <div className="mt-2 flex flex-wrap gap-1">
-                {c.scopes.map((s) => (
-                  <span key={s} className="rounded-sm bg-surface px-1.5 py-0.5 text-xs text-subtle">
-                    {s}
-                  </span>
-                ))}
-              </div>
-              {mine && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {on ? (
-                    <>
-                      <Button size="sm" onClick={() => void run(c.id, "connector.sync")} disabled={pending}>
-                        Sync
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => void run(c.id, "connector.disconnect")} disabled={pending}>
-                        Disconnect
-                      </Button>
-                    </>
-                  ) : (
-                    <Button size="sm" onClick={() => void run(c.id, "connector.connect")} disabled={pending}>
-                      Connect
+              {mine ? (
+                on ? (
+                  <div className="flex shrink-0 gap-1">
+                    <Button size="sm" onClick={() => void run(c.id, "connector.sync")} disabled={pending}>
+                      Sync
                     </Button>
-                  )}
-                </div>
-              )}
+                    <Button size="sm" variant="ghost" onClick={() => void run(c.id, "connector.disconnect")} disabled={pending}>
+                      Disconnect
+                    </Button>
+                  </div>
+                ) : (
+                  <Button size="sm" onClick={() => void run(c.id, "connector.connect")} disabled={pending}>
+                    Connect
+                  </Button>
+                )
+              ) : null}
             </div>
           );
         })}
