@@ -109,7 +109,7 @@ export function Segmented<T extends string>({
   options: { id: T; label: string }[];
 }) {
   return (
-    <div className="flex gap-0.5 overflow-x-auto rounded-md bg-elevated p-0.5 no-scrollbar">
+    <div className="glass flex gap-0.5 overflow-x-auto rounded-md p-0.5 no-scrollbar">
       {options.map((o) => (
         <button
           key={o.id}
@@ -128,7 +128,7 @@ export function Segmented<T extends string>({
 }
 
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("rounded-lg bg-surface p-3 shadow-border", className)}>{children}</div>;
+  return <div className={cn("glass rounded-lg p-3", className)}>{children}</div>;
 }
 
 export function Row({
@@ -180,23 +180,23 @@ export function Modal({
     <div className="fixed inset-0 z-50 flex items-end justify-center p-3 sm:items-center">
       <button
         type="button"
-        aria-label="Close"
+        aria-label="Dismiss"
         className="absolute inset-0 bg-background/80"
         onClick={onClose}
       />
       <div
         role="dialog"
         aria-modal="true"
-        className="relative z-10 w-full max-w-md rounded-xl bg-surface p-4 shadow-border"
+        className="glass relative z-10 flex max-h-[min(85dvh,40rem)] w-full max-w-md flex-col overflow-hidden rounded-xl p-4"
       >
-        <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="mb-3 flex shrink-0 items-start justify-between gap-3">
           <h2 className="text-base font-medium tracking-tight">{title}</h2>
-          <button type="button" onClick={onClose} className="text-xs text-muted">
+          <button type="button" onClick={onClose} className="flex h-10 items-center px-2 text-xs text-muted">
             Close
           </button>
         </div>
-        <div className="space-y-3">{children}</div>
-        {footer ? <div className="mt-4 flex justify-end gap-2">{footer}</div> : null}
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain">{children}</div>
+        {footer ? <div className="mt-4 flex shrink-0 justify-end gap-2">{footer}</div> : null}
       </div>
     </div>,
     document.body,
@@ -206,7 +206,7 @@ export function Modal({
 export function SectionTitle({ children, right }: { children: ReactNode; right?: ReactNode }) {
   return (
     <div className="mb-2 flex items-baseline justify-between gap-2">
-      <h2 className="text-xs font-medium uppercase tracking-[0.14em] text-subtle">{children}</h2>
+      <h2 className="text-xs font-medium uppercase tracking-wide text-subtle">{children}</h2>
       {right}
     </div>
   );

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Bubbles } from "@/components/shell/Bubbles";
+import { Hud } from "@/components/shell/Hud";
 import type { TabId } from "@/spine/types";
 
 type Look = { src: string; label: string };
@@ -96,15 +96,14 @@ export function SlideHero({
 
   return (
     <header className="slide-hero relative -mx-6 -mt-1 overflow-hidden md:-mx-12">
-      <img src={look.src} alt="" className="absolute inset-0 size-full object-cover" />
-      <Bubbles variant="hero" />
-      <div className="absolute inset-0 bg-linear-to-r from-background/80 via-background/45 to-background/20" />
-      <div className="absolute inset-0 bg-linear-to-t from-background/70 to-transparent" />
-      <div className="today-hero relative flex items-end justify-between gap-3 px-6 pt-10 pb-3 md:px-12">
+      <img src={look.src} alt="" className="pointer-events-none absolute inset-0 size-full object-cover opacity-20" />
+      <Hud variant="hero" />
+      <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-transparent via-background/20 to-background/55" />
+      <div className="today-hero relative z-2 flex items-end justify-between gap-3 px-6 pt-10 pb-3 md:px-12">
         <div className="min-w-0">{children}</div>
         {aside ? <div className="shrink-0">{aside}</div> : null}
       </div>
-      <div className="relative flex flex-wrap gap-1 px-6 pb-3 md:px-12">
+      <div className="relative z-2 flex flex-wrap gap-1 px-6 pb-3 md:px-12">
         {looks.map((l, idx) => (
           <button
             key={l.label}
@@ -112,7 +111,7 @@ export function SlideHero({
             onClick={() => pick(idx)}
             className={cn(
               "h-7 rounded-sm px-2 text-xs",
-              idx === i ? "bg-foreground text-background" : "bg-background/45 text-foreground/85",
+              idx === i ? "bg-foreground text-background" : "bg-elevated text-muted",
             )}
           >
             {l.label}

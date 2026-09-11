@@ -17,6 +17,7 @@ export type WeatherSnap = {
   pop: number;
   aqi: number;
   hours: HourPoint[];
+  place: string;
 };
 
 const WMO: Record<number, string> = {
@@ -94,6 +95,7 @@ export const WEATHER_FALLBACK: WeatherSnap = {
     { hour: "7 pm", tempC: 31, label: "Haze", pop: 12 },
     { hour: "8 pm", tempC: 30, label: "Haze", pop: 12 },
   ],
+  place: "Delhi",
 };
 
 const CACHE_KEY = "sh-weather";
@@ -106,6 +108,7 @@ function readCache(): WeatherSnap | null {
     const parsed = JSON.parse(raw) as { at: number; snap: WeatherSnap };
     if (Date.now() - parsed.at > TTL_MS) return null;
     if (!parsed.snap?.hours) return null;
+    if (!parsed.snap.place) parsed.snap.place = "Delhi";
     return parsed.snap;
   } catch {
     return null;
@@ -142,11 +145,54 @@ function pickHours(times: string[], temps: number[], codes: number[], pops: numb
   return out.length ? out : WEATHER_FALLBACK.hours;
 }
 
+const DELHI = { lat: 28.6139, lon: 77.209, place: "Delhi", tz: "Asia/Kolkata" };
+
+async function reversePlace(lat: number, lon: number): Promise<string> {
+  try {
+    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+    const res = await fetch(url);
+    if (!res.ok) return DELHI.place;
+    const data = (await res.json()) as {
+      city?: string;
+      locality?: string;
+      principalSubdivision?: string;
+    };
+    return data.city || data.locality || data.principalSubdivision || DELHI.place;
+  } catch {
+    return DELHI.place;
+  }
+}
+
+function locate(): Promise<{ lat: number; lon: number }> {
+  return new Promise((resolve) => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      resolve({ lat: DELHI.lat, lon: DELHI.lon });
+      return;
+    }
+    const timer = window.setTimeout(() => resolve({ lat: DELHI.lat, lon: DELHI.lon }), 4000);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        window.clearTimeout(timer);
+        resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+      },
+      () => {
+        window.clearTimeout(timer);
+        resolve({ lat: DELHI.lat, lon: DELHI.lon });
+      },
+      { enableHighAccuracy: false, timeout: 3500, maximumAge: 30 * 60_000 },
+    );
+  });
+}
+
 export async function fetchDelhiWeather(): Promise<WeatherSnap> {
+  const here = await locate();
+  const isDelhi = Math.abs(here.lat - DELHI.lat) < 0.35 && Math.abs(here.lon - DELHI.lon) < 0.35;
+  const place = isDelhi ? DELHI.place : await reversePlace(here.lat, here.lon);
+  const tz = isDelhi ? DELHI.tz : "auto";
   const forecastUrl =
-    "https://api.open-meteo.com/v1/forecast?latitude=28.6139&longitude=77.209&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FKolkata&forecast_days=1";
+    `https://api.open-meteo.com/v1/forecast?latitude=${here.lat}&longitude=${here.lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=${encodeURIComponent(tz)}&forecast_days=1`;
   const aqiUrl =
-    "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=28.6139&longitude=77.209&current=us_aqi&timezone=Asia%2FKolkata";
+    `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${here.lat}&longitude=${here.lon}&current=us_aqi&timezone=${encodeURIComponent(tz)}`;
   const [forecastRes, aqiRes] = await Promise.all([fetch(forecastUrl), fetch(aqiUrl)]);
   if (!forecastRes.ok) throw new Error("weather");
   const data = (await forecastRes.json()) as {
@@ -185,6 +231,7 @@ export async function fetchDelhiWeather(): Promise<WeatherSnap> {
     pop,
     aqi,
     hours,
+    place,
   };
   writeCache(snap);
   return snap;

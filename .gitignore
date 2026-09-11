@@ -9,6 +9,7 @@ screenshots
 .DS_Store
 .env
 .env.*
+!.env.example
 .project_id
 .node_modules.lock
 .grok/preview.log

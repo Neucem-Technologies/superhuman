@@ -15,13 +15,13 @@ export function GrowthTab() {
     <div className="flex min-h-[70dvh] flex-col gap-4">
       <SlideHero slide="growth">
         <h1 className="text-2xl font-medium tracking-tight text-foreground">Growth</h1>
-        <p className="mt-0.5 text-sm text-foreground/85">Chat-first. Searches mock YouTube / Spotify subscriptions and logs the spine.</p>
+        <p className="mt-0.5 text-sm text-muted">Chat-first. Searches mock YouTube / Spotify subscriptions and logs the spine.</p>
       </SlideHero>
       <div className="flex-1 space-y-3">
         {chat.map((m) => (
           <div key={m.id} className={m.role === "user" ? "ml-8" : "mr-8"}>
             <Card className={m.role === "user" ? "bg-elevated" : ""}>
-              <p className="text-xs uppercase tracking-[0.14em] text-subtle">{m.role === "user" ? "You" : "Bot"}</p>
+              <p className="text-xs uppercase tracking-wide text-subtle">{m.role === "user" ? "You" : "Bot"}</p>
               <p className="mt-1 text-sm">{m.text}</p>
               {m.results?.map((r) => (
                 <p key={r.title} className="mt-1 text-xs text-muted">
@@ -50,7 +50,7 @@ export function GrowthTab() {
         <div className="grid grid-cols-2 gap-2">
           {growth.map((g) => (
             <Card key={g.id}>
-              <p className="text-xs uppercase tracking-[0.14em] text-subtle">{g.area}</p>
+              <p className="text-xs uppercase tracking-wide text-subtle">{g.area}</p>
               <p className="text-sm font-medium">{g.title}</p>
               <p className="font-mono text-lg tabular-nums">{g.streak}d</p>
               <Button size="sm" variant="ghost" className="mt-1" onClick={() => act("growth.checkin", { id: g.id })}>

@@ -56,7 +56,7 @@ export function scopeSummary(scopes: Scope[]) {
 export function inviteBody(person: Pick<Person, "name" | "title">, scopes: Scope[], origin: string, id: string) {
   const areas = scopeSummary(scopes);
   return [
-    `Rajan invited you to Superhuman as ${person.title}.`,
+    `Rajan invited you to LivinSync as ${person.title}.`,
     `You will see: ${areas}. Nothing else — hub-and-spoke, you cannot see other contributors.`,
     `Accept: ${origin}?invite=${id}`,
   ].join("\n\n");

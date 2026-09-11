@@ -30,9 +30,9 @@ export function HomePager({ openShelf, tick }: { openShelf: boolean; tick: numbe
 
 function ScrollHome({ children }: { children: ReactNode }) {
   return (
-    <div className="home-atmosphere relative min-h-0 flex-1 overflow-hidden">
+    <div className="home-atmosphere relative flex min-h-0 flex-1 flex-col overflow-hidden">
       <TodaySky />
-      <div className="relative z-1 min-h-0 flex-1 overflow-y-auto px-6 py-3 md:px-12">
+      <div className="relative z-1 min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-3 md:px-12">
         <div className="mx-auto w-full max-w-3xl space-y-4">
           <LayoutSwitch />
           <Coach />
@@ -119,7 +119,7 @@ function StackPager({ openShelf, tick }: { openShelf: boolean; tick: number }) {
                 </button>
               }
             >
-              <p className="text-xs uppercase tracking-[0.16em] text-foreground/70">Shelf</p>
+              <p className="text-xs uppercase tracking-wide text-muted">Shelf</p>
               <h1 className="text-lg font-medium tracking-tight text-foreground">Widgets</h1>
             </SlideHero>
             <WidgetGrid

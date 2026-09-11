@@ -18,7 +18,7 @@ export function NotesTab() {
     <div className="space-y-4">
       <SlideHero slide="notes">
         <h1 className="text-2xl font-medium tracking-tight text-foreground">Notes</h1>
-        <p className="mt-0.5 text-sm text-foreground/85">Quick capture. Voice goes through the bar below — it transcribes, then files here.</p>
+        <p className="mt-0.5 text-sm text-muted">Quick capture. Voice goes through the bar below — it transcribes, then files here.</p>
       </SlideHero>
       <Card className="space-y-2">
         <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />

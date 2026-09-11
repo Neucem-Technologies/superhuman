@@ -49,7 +49,7 @@ export function TabInbox({ tab }: { tab: TabId }) {
                   <span className="flex flex-wrap items-baseline gap-x-2">
                     <span className="text-sm font-medium">{e.title}</span>
                     {tab === "home" ? (
-                      <span className="text-xs uppercase tracking-[0.14em] text-subtle">{TAB_LABELS[e.tab]}</span>
+                      <span className="text-xs uppercase tracking-wide text-subtle">{TAB_LABELS[e.tab]}</span>
                     ) : null}
                     <span className="text-xs text-subtle">{formatShortDay(e.timestamp)}</span>
                   </span>

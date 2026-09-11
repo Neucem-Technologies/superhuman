@@ -60,7 +60,7 @@ export function classifyLocal(input: ClassifyInput): ClassifyResult {
       best = rule.tab;
     }
   }
-  if (/\b(brief|today|across|superhuman|overview)\b/i.test(input.query) && score < 2) best = "home";
+  if (/\b(brief|today|across|livinsync|superhuman|overview)\b/i.test(input.query) && score < 2) best = "home";
 
   const firstFile = input.files?.[0]?.name;
   const title =

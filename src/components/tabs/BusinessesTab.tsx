@@ -61,7 +61,7 @@ export function BusinessesTab() {
             })}
             {loan && loan.amountInr > 0 && (
               <Card>
-                <p className="text-xs uppercase tracking-[0.14em] text-subtle">Inter-entity loan</p>
+                <p className="text-xs uppercase tracking-wide text-subtle">Inter-entity loan</p>
                 <p className="text-sm">Running balance {inr(loan.amountInr)}. Income landed recently — settle from Finance.</p>
               </Card>
             )}

@@ -19,7 +19,7 @@ export function EntertainmentTab() {
     <div className="space-y-4">
       <SlideHero slide="entertainment">
         <h1 className="text-2xl font-medium tracking-tight text-foreground">Entertainment</h1>
-        <p className="mt-0.5 text-sm text-foreground/85">{calm ? "Mood is loaded. Quiet picks from your subscriptions." : "Energy is up. Brighter picks."}</p>
+        <p className="mt-0.5 text-sm text-muted">{calm ? "Mood is loaded. Quiet picks from your subscriptions." : "Energy is up. Brighter picks."}</p>
       </SlideHero>
       <Segmented
         value={sec}
@@ -45,7 +45,7 @@ export function EntertainmentTab() {
               ]
           ).map((x) => (
             <Card key={x.t}>
-              <p className="text-xs uppercase tracking-[0.14em] text-subtle">{x.k}</p>
+              <p className="text-xs uppercase tracking-wide text-subtle">{x.k}</p>
               <p className="text-sm font-medium">{x.t}</p>
               <p className="text-xs text-muted">{x.m}</p>
             </Card>
@@ -55,7 +55,7 @@ export function EntertainmentTab() {
       {sec === "plans" && (
         <div className="space-y-2">
           <Card>
-            <p className="text-xs uppercase tracking-[0.14em] text-subtle">Father–daughter</p>
+            <p className="text-xs uppercase tracking-wide text-subtle">Father–daughter</p>
             <p className="text-sm font-medium">Saturday · Lodhi + ice cream + Midland</p>
             <ul className="mt-2 space-y-1 text-sm text-muted">
               <li>10:00 Lodhi Garden, camera</li>
@@ -64,7 +64,7 @@ export function EntertainmentTab() {
             </ul>
           </Card>
           <Card>
-            <p className="text-xs uppercase tracking-[0.14em] text-subtle">Night out</p>
+            <p className="text-xs uppercase tracking-wide text-subtle">Night out</p>
             <p className="text-sm font-medium">Khan Market · Kabir</p>
             <p className="text-sm text-muted">Walk-in at The Big Chill after 8. Friends can add to Work as a hold — calendar still needs your confirm.</p>
           </Card>
@@ -98,7 +98,7 @@ export function EntertainmentTab() {
           <ul className="space-y-2">
             {captures.map((c) => (
               <li key={c.id} className="text-sm">
-                <span className="text-xs uppercase tracking-[0.14em] text-subtle">{c.targetTab}</span>
+                <span className="text-xs uppercase tracking-wide text-subtle">{c.targetTab}</span>
                 <p className="text-muted">{c.text}</p>
               </li>
             ))}
