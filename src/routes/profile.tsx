@@ -5,16 +5,14 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { AuthActions } from "@/components/auth/AuthScreen";
 import { GetAppPanel } from "@/components/shell/GetAppPanel";
 import { Button } from "@/components/ui/primitives";
-import { useContrast } from "@/lib/contrast";
 
 export const Route = createFileRoute("/profile")({ component: Profile });
 
 function Profile() {
   const { isPending } = useCurrentUserState();
   const [getApp, setGetApp] = useState(false);
-  const { high, toggle } = useContrast();
   return (
-    <main className="min-h-dvh bg-background px-6 py-8 text-foreground md:px-12">
+    <main className="min-h-dvh px-6 py-8 text-foreground md:px-12">
       <div className="mx-auto w-full max-w-sm space-y-6">
         <div>
           <p className="text-xs uppercase tracking-wide text-subtle">Account</p>
@@ -37,11 +35,14 @@ function Profile() {
           )}
         </div>
         <div className="rounded-md bg-elevated p-4 shadow-border">
-          <p className="text-xs uppercase tracking-wide text-subtle">Display</p>
-          <p className="mt-1 text-sm text-muted">Ink on white. Stronger type. Photos off.</p>
-          <Button className="mt-3" size="sm" variant={high ? "primary" : "secondary"} onClick={toggle}>
-            High contrast {high ? "on" : "off"}
-          </Button>
+          <p className="text-xs uppercase tracking-wide text-subtle">Settings</p>
+          <p className="mt-1 text-sm text-muted">Theme, text size, glass, and tile colour.</p>
+          <Link
+            to="/settings"
+            className="mt-3 inline-flex h-8 items-center rounded-sm bg-elevated px-2.5 text-xs font-medium shadow-border"
+          >
+            Open settings
+          </Link>
         </div>
         <div className="rounded-md bg-elevated p-4 shadow-border">
           <p className="text-xs uppercase tracking-wide text-subtle">Phones</p>

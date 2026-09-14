@@ -9,6 +9,7 @@ import type {
   Email,
   HealthStream,
   Note,
+  Task,
   Trip,
   Txn,
   VaultFile,
@@ -27,7 +28,7 @@ export type ConnectorNeed = {
   env?: string;
 };
 
-export type ConnectorGroupId = "work" | "health" | "travel" | "money" | "play" | "shop" | "files";
+export type ConnectorGroupId = "work" | "health" | "travel" | "money" | "play" | "shop" | "files" | "notes";
 
 export type ConnectorMeta = {
   id: ConnectorId;
@@ -51,6 +52,7 @@ export const CONNECTOR_GROUPS: { id: ConnectorGroupId; label: string }[] = [
   { id: "play", label: "Enjoy" },
   { id: "shop", label: "Shop" },
   { id: "files", label: "Files" },
+  { id: "notes", label: "Notes" },
 ];
 
 export const CONNECTOR_CATALOG: ConnectorMeta[] = [
@@ -71,6 +73,59 @@ export const CONNECTOR_CATALOG: ConnectorMeta[] = [
         { name: "Calendar API", kind: "account", detail: "Enable Calendar API. Scope calendar.readonly." },
         { name: "People API", kind: "account", detail: "Enable People API. Scope contacts.readonly." },
         { name: "Redirect URI", kind: "oauth", detail: "Must match the sign-in callback for this app.", env: "GOOGLE_REDIRECT_URI" },
+      ],
+    },
+  },
+  {
+    id: "google-tasks",
+    label: "Google Tasks",
+    account: "Tasks · Google",
+    blurb: "Task lists into Today and Work. Same Cloud project as Google.",
+    tabs: "Work",
+    group: "work",
+    scopes: ["Tasks"],
+    live: {
+      summary: "Google Tasks API. Reuses the Google OAuth client. Self-serve; add the Tasks API and scope.",
+      needs: [
+        { name: "Tasks API", kind: "account", detail: "Enable Google Tasks API on the Cloud project." },
+        { name: "OAuth client", kind: "oauth", detail: "Reuse GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET.", env: "GOOGLE_CLIENT_ID" },
+        { name: "Scope", kind: "account", detail: "https://www.googleapis.com/auth/tasks.readonly (or tasks to write back)." },
+      ],
+    },
+  },
+  {
+    id: "slack",
+    label: "Slack",
+    account: "Malhotra Media",
+    blurb: "Channels and DMs into Work. Hub-and-spoke — they do not see each other.",
+    tabs: "Work",
+    group: "work",
+    scopes: ["Channels", "DMs"],
+    live: {
+      summary: "Slack app with user token. Create the app, then submit for distribution when you leave the workspace.",
+      needs: [
+        { name: "Client ID", kind: "oauth", detail: "api.slack.com → Your Apps → OAuth & Permissions.", env: "SLACK_CLIENT_ID" },
+        { name: "Client secret", kind: "secret", detail: "Same Slack app. Server-side only.", env: "SLACK_CLIENT_SECRET" },
+        { name: "Redirect URI", kind: "oauth", detail: "Must match the Slack app redirect exactly.", env: "SLACK_REDIRECT_URI" },
+        { name: "Scopes", kind: "account", detail: "channels:history, groups:history, im:history, users:read — user token, not bot-only." },
+      ],
+    },
+  },
+  {
+    id: "microsoft",
+    label: "Microsoft",
+    account: "Outlook · OneDrive · To Do",
+    blurb: "Mail, calendar, To Do, OneDrive. Lands in Work and Files.",
+    tabs: "Work · Files",
+    group: "work",
+    scopes: ["Mail", "Calendar", "Tasks", "Files"],
+    live: {
+      summary: "Microsoft identity platform (Entra ID) + Graph. Self-serve app registration; publisher verification for work tenants.",
+      needs: [
+        { name: "Application (client) ID", kind: "oauth", detail: "Entra ID → App registrations.", env: "MICROSOFT_CLIENT_ID" },
+        { name: "Client secret", kind: "secret", detail: "Certificates & secrets. Server-side only.", env: "MICROSOFT_CLIENT_SECRET" },
+        { name: "Redirect URI", kind: "oauth", detail: "Web platform redirect; must match exactly.", env: "MICROSOFT_REDIRECT_URI" },
+        { name: "Graph scopes", kind: "account", detail: "Mail.Read, Calendars.Read, Tasks.Read, Files.Read. Delegated, not application." },
       ],
     },
   },
@@ -125,6 +180,25 @@ export const CONNECTOR_CATALOG: ConnectorMeta[] = [
         { name: "API key or OAuth bearer", kind: "api-key", detail: "Issued per environment (sandbox / production).", env: "ULTRAHUMAN_API_KEY" },
         { name: "User link", kind: "oauth", detail: "User authorises LivinSync to read their ring cloud.", env: "ULTRAHUMAN_CLIENT_ID" },
         { name: "OAuth client secret", kind: "secret", detail: "Pairs with ULTRAHUMAN_CLIENT_ID. Server-side only.", env: "ULTRAHUMAN_CLIENT_SECRET" },
+      ],
+    },
+  },
+  {
+    id: "fitbit",
+    label: "Fitbit",
+    account: "Fitbit · Google",
+    blurb: "Steps, sleep, HR. Lands in Health. Works on the web — no HealthKit.",
+    tabs: "Health",
+    group: "health",
+    scopes: ["Activity", "Sleep", "Heart"],
+    live: {
+      summary: "Fitbit Web API via a Google Cloud OAuth client. Self-serve; production needs a Fitbit app review.",
+      needs: [
+        { name: "Fitbit app", kind: "account", detail: "dev.fitbit.com → Register an application." },
+        { name: "OAuth client ID", kind: "oauth", detail: "Fitbit app OAuth 2.0 client ID.", env: "FITBIT_CLIENT_ID" },
+        { name: "OAuth client secret", kind: "secret", detail: "Server-side only.", env: "FITBIT_CLIENT_SECRET" },
+        { name: "Redirect URI", kind: "oauth", detail: "Must match the Fitbit app callback.", env: "FITBIT_REDIRECT_URI" },
+        { name: "Scopes", kind: "account", detail: "activity, sleep, heartrate, profile — personal, not all-users until reviewed." },
       ],
     },
   },
@@ -289,6 +363,42 @@ export const CONNECTOR_CATALOG: ConnectorMeta[] = [
       ],
     },
   },
+  {
+    id: "dropbox",
+    label: "Dropbox",
+    account: "Dropbox · vault",
+    blurb: "Files into the vault. Lands in Files.",
+    tabs: "Files",
+    group: "files",
+    scopes: ["Files", "Folders"],
+    live: {
+      summary: "Dropbox app console. Scoped app, then production status after review.",
+      needs: [
+        { name: "App key", kind: "oauth", detail: "Dropbox App Console → app key.", env: "DROPBOX_APP_KEY" },
+        { name: "App secret", kind: "secret", detail: "Same app. Server-side only.", env: "DROPBOX_APP_SECRET" },
+        { name: "Redirect URI", kind: "oauth", detail: "Must match the console allow-list.", env: "DROPBOX_REDIRECT_URI" },
+        { name: "Access type", kind: "account", detail: "Scoped app with files.metadata.read and files.content.read." },
+      ],
+    },
+  },
+  {
+    id: "notion",
+    label: "Notion",
+    account: "workspace · notes",
+    blurb: "Pages into Notes. Public integration — self-serve, then Notion distribution if you leave your workspace.",
+    tabs: "Notes",
+    group: "notes",
+    scopes: ["Pages", "Databases"],
+    live: {
+      summary: "Notion public integration with OAuth. Start internal, then public for other workspaces.",
+      needs: [
+        { name: "OAuth client ID", kind: "oauth", detail: "notion.so/my-integrations → Public integration.", env: "NOTION_CLIENT_ID" },
+        { name: "OAuth client secret", kind: "secret", detail: "Same integration. Server-side only.", env: "NOTION_CLIENT_SECRET" },
+        { name: "Redirect URI", kind: "oauth", detail: "Must match the integration redirect.", env: "NOTION_REDIRECT_URI" },
+        { name: "Capabilities", kind: "account", detail: "Read content. User picks which pages to share with LivinSync." },
+      ],
+    },
+  },
 ];
 
 export function defaultConnectors(): Connector[] {
@@ -343,6 +453,11 @@ function upsertNote(list: Note[], item: Note) {
 
 function upsertFile(list: VaultFile[], item: VaultFile) {
   if (list.some((f) => f.id === item.id)) return list;
+  return [item, ...list];
+}
+
+function upsertTask(list: Task[], item: Task) {
+  if (list.some((t) => t.id === item.id)) return list;
   return [item, ...list];
 }
 
@@ -585,6 +700,133 @@ export function applyConnectorImport(state: Domain, id: ConnectorId, atTs: numbe
       sourceTab: "work",
     };
     return { folders: resolved.folders, files: upsertFile(state.files ?? [], file) };
+  }
+
+  if (id === "google-tasks") {
+    const task: Task = {
+      id: "task-gtasks",
+      title: "Confirm Northwind deck owner",
+      done: false,
+      ownerId: SELF_ID,
+      createdBy: SELF_ID,
+      priority: 1,
+      tiny: true,
+      due: at(16, 0),
+    };
+    return { tasks: upsertTask(state.tasks, task) };
+  }
+
+  if (id === "slack") {
+    const thread: WaThread = {
+      id: "wa-slack",
+      name: "Slack · #studio",
+      preview: "Arjun: Northwind mix is in the thread. Need a yes by 4.",
+      tab: "work",
+      timestamp: atTs - 18 * 60_000,
+    };
+    return { waThreads: upsertThread(state.waThreads ?? [], thread) };
+  }
+
+  if (id === "microsoft") {
+    const email: Email = {
+      id: "em-msft",
+      from: "arjun@malhotramedia.in",
+      fromName: "Arjun Khanna",
+      subject: "Outlook · vendor hold",
+      preview: "Moved the Northwind hold to 2:15. Synced from Outlook.",
+      body: "Synced from Microsoft Outlook. Vendor hold 14:15–15:00 IST.",
+      timestamp: atTs - 11 * 60_000,
+      unread: true,
+      mailbox: "work",
+    };
+    const calendar = state.calendar.some((c) => c.id === "cal-msft")
+      ? state.calendar
+      : [
+          {
+            id: "cal-msft",
+            title: "Vendor hold · Outlook",
+            start: at(14, 15),
+            end: at(15, 0),
+            ownerId: SELF_ID,
+            kind: "meeting" as const,
+            status: "confirmed" as const,
+            invitedBy: "microsoft",
+            note: "Synced from Outlook",
+          },
+          ...state.calendar,
+        ];
+    const task: Task = {
+      id: "task-msft",
+      title: "To Do · send Northwind recap",
+      done: false,
+      ownerId: SELF_ID,
+      createdBy: SELF_ID,
+      priority: 2,
+    };
+    const resolved = resolveFolderId(state.folders ?? [], "files", "Work");
+    const file: VaultFile = {
+      id: "vf-onedrive",
+      name: "Q3-narrative.docx",
+      mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      size: 48200,
+      folderId: resolved.folderId,
+      createdAt: atTs,
+      textExcerpt: "Q3 narrative. Synced from OneDrive.",
+      sourceTab: "work",
+    };
+    return {
+      emails: upsertEmail(state.emails, email),
+      calendar,
+      tasks: upsertTask(state.tasks, task),
+      folders: resolved.folders,
+      files: upsertFile(state.files ?? [], file),
+    };
+  }
+
+  if (id === "fitbit") {
+    const next: HealthStream = {
+      source: "fitbit",
+      hrv: 41,
+      rhr: 59,
+      steps: 8120,
+      sleepHours: 6.1,
+      stress: 62,
+      recovery: 58,
+      syncedAt: atTs,
+    };
+    const streams = state.streams.some((s) => s.source === "fitbit")
+      ? state.streams.map((s) => (s.source === "fitbit" ? { ...s, ...next, steps: s.steps + 30 } : s))
+      : [next, ...state.streams];
+    return { streams };
+  }
+
+  if (id === "dropbox") {
+    const resolved = resolveFolderId(state.folders ?? [], "files", "Work");
+    const file: VaultFile = {
+      id: "vf-dropbox",
+      name: "Board-pack.pdf",
+      mime: "application/pdf",
+      size: 240128,
+      folderId: resolved.folderId,
+      createdAt: atTs,
+      textExcerpt: "Board pack. Synced from Dropbox.",
+      sourceTab: "work",
+    };
+    return { folders: resolved.folders, files: upsertFile(state.files ?? [], file) };
+  }
+
+  if (id === "notion") {
+    const note: Note = {
+      id: "note-notion",
+      title: "Notion · weekly OS",
+      body: "From Notion: keep Friday deep work. Ferritin follow-up still open with Dr Shah.",
+      createdAt: atTs,
+      updatedAt: atTs,
+      authorId: SELF_ID,
+      shared: false,
+      linkedEventIds: [],
+    };
+    return { notes: upsertNote(state.notes, note) };
   }
 
   return {};

@@ -2,6 +2,10 @@ import { type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, ty
 import { createPortal } from "react-dom";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import { TILE_BLUR_STEPS, TILE_FILL_STEPS, type TileBlur, type TileFill } from "@/lib/tile-opacity";
+import { TILE_PALETTES, type TilePaletteId } from "@/lib/tile-palette";
+import { THEME_MODES, type ThemeMode } from "@/lib/theme";
+import { FONT_SCALE_STEPS, type FontScale } from "@/lib/font-scale";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-1.5 font-medium select-none transition-[transform,background-color,color,box-shadow] duration-150 ease-out active:not-disabled:scale-[0.96] disabled:opacity-40 disabled:pointer-events-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
@@ -121,6 +125,148 @@ export function Segmented<T extends string>({
           )}
         >
           {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function TileFillPicker({
+  pct,
+  setFill,
+  blur,
+  setBlur,
+}: {
+  pct: TileFill;
+  setFill: (n: TileFill) => void;
+  blur: TileBlur;
+  setBlur: (n: TileBlur) => void;
+}) {
+  return (
+    <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
+      <p className="text-xs text-subtle">Opacity</p>
+      <div className="flex flex-wrap gap-1" role="group" aria-label="Tile opacity">
+        {TILE_FILL_STEPS.map((n) => (
+          <button
+            key={n}
+            type="button"
+            aria-pressed={pct === n}
+            onClick={() => setFill(n)}
+            className={cn(
+              "h-8 min-w-10 rounded-sm px-2 text-xs tabular-nums",
+              pct === n ? "bg-foreground text-background" : "bg-elevated text-muted shadow-border",
+            )}
+          >
+            {n}%
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-subtle">Blur</p>
+      <div className="flex flex-wrap gap-1" role="group" aria-label="Tile blur">
+        {TILE_BLUR_STEPS.map((n) => (
+          <button
+            key={n}
+            type="button"
+            aria-pressed={blur === n}
+            onClick={() => setBlur(n)}
+            className={cn(
+              "h-8 min-w-10 rounded-sm px-2 text-xs tabular-nums",
+              blur === n ? "bg-foreground text-background" : "bg-elevated text-muted shadow-border",
+            )}
+          >
+            {n}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function TilePalettePicker({
+  id,
+  setPalette,
+}: {
+  id: TilePaletteId;
+  setPalette: (n: TilePaletteId) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Tile colour" onClick={(e) => e.stopPropagation()}>
+      {TILE_PALETTES.map((p) => (
+        <button
+          key={p.id}
+          type="button"
+          aria-pressed={id === p.id}
+          aria-label={p.label}
+          title={p.label}
+          onClick={() => setPalette(p.id)}
+          className={cn(
+            "flex h-11 min-w-11 flex-col items-center justify-center gap-1 rounded-md px-2",
+            id === p.id ? "shadow-border" : "",
+          )}
+          style={id === p.id ? { boxShadow: "0 0 0 2px var(--color-foreground)" } : undefined}
+        >
+          <span className="size-6 rounded-full" style={{ background: p.swatch, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.2)" }} />
+          <span className="text-[10px] leading-none text-muted">{p.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function ThemePicker({
+  mode,
+  setTheme,
+}: {
+  mode: ThemeMode;
+  setTheme: (n: ThemeMode) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-1" role="group" aria-label="Dynamic theme">
+      {THEME_MODES.map((m) => (
+        <button
+          key={m.id}
+          type="button"
+          aria-pressed={mode === m.id}
+          onClick={() => setTheme(m.id)}
+          className={cn(
+            "h-8 rounded-sm px-2.5 text-xs",
+            mode === m.id ? "bg-foreground text-background" : "bg-elevated text-muted shadow-border",
+          )}
+        >
+          {m.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function FontScalePicker({
+  pct,
+  setScale,
+}: {
+  pct: FontScale;
+  setScale: (n: FontScale) => void;
+}) {
+  const labels: Record<FontScale, string> = {
+    90: "S",
+    100: "Default",
+    115: "L",
+    130: "XL",
+  };
+  return (
+    <div className="flex flex-wrap gap-1" role="group" aria-label="Text size">
+      {FONT_SCALE_STEPS.map((n) => (
+        <button
+          key={n}
+          type="button"
+          aria-pressed={pct === n}
+          onClick={() => setScale(n)}
+          className={cn(
+            "h-8 min-w-10 rounded-sm px-2 text-xs",
+            pct === n ? "bg-foreground text-background" : "bg-elevated text-muted shadow-border",
+          )}
+        >
+          {labels[n]}
         </button>
       ))}
     </div>

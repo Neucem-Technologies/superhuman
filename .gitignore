@@ -10,6 +10,9 @@ screenshots
 .env
 .env.*
 !.env.example
+secrets/.env
+secrets/.env.local
+secrets/.env.*.local
 .project_id
 .node_modules.lock
 .grok/preview.log

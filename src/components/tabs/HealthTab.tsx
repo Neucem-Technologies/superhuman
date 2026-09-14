@@ -58,13 +58,16 @@ function Overview() {
   const checkins = useAppStore((s) => s.checkins);
   const apple = useAppStore((s) => s.connectors?.find((c) => c.id === "apple-health"));
   const ultra = useAppStore((s) => s.connectors?.find((c) => c.id === "ultrahuman"));
+  const fitbit = useAppStore((s) => s.connectors?.find((c) => c.id === "fitbit"));
   const act = useAppStore((s) => s.act);
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-x-2 gap-y-3 sm:grid-cols-4">
         {streams.map((s) => (
           <Card key={s.source} className="col-span-3 sm:col-span-2">
-            <p className="text-xs uppercase tracking-wide text-subtle">{s.source === "apple" ? "Apple Health" : "UltraHuman"}</p>
+            <p className="text-xs uppercase tracking-wide text-subtle">
+              {s.source === "apple" ? "Apple Health" : s.source === "fitbit" ? "Fitbit" : "UltraHuman"}
+            </p>
             <p className="mt-2 font-mono text-lg tabular-nums">{s.recovery}</p>
             <p className="text-xs text-muted">recovery · HRV {s.hrv} · RHR {s.rhr}</p>
             <p className="text-xs text-muted">sleep {s.sleepHours.toFixed(1)}h · stress {s.stress}</p>
@@ -96,6 +99,20 @@ function Overview() {
                 onClick={() => {
                   const r = act("connector.sync", { id: "ultrahuman" });
                   if (r.ok) toast("UltraHuman synced");
+                  else toast.error(r.error);
+                }}
+              >
+                Sync
+              </Button>
+            )}
+            {s.source === "fitbit" && fitbit?.status === "connected" && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="mt-2"
+                onClick={() => {
+                  const r = act("connector.sync", { id: "fitbit" });
+                  if (r.ok) toast("Fitbit synced");
                   else toast.error(r.error);
                 }}
               >

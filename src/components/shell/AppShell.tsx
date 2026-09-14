@@ -14,7 +14,7 @@ import {
   StickyNote,
   Wallet,
   Smartphone,
-  Contrast,
+  Settings,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Toaster, toast } from "sonner";
@@ -38,7 +38,6 @@ import { InvitePanel } from "@/components/shell/InvitePanel";
 import { ConnectorsPanel } from "@/components/shell/ConnectorsPanel";
 import { GetAppPanel } from "@/components/shell/GetAppPanel";
 import { useDayPeriod } from "@/components/shell/DayBackdrop";
-import { useContrast } from "@/lib/contrast";
 import { AuthActions } from "@/components/auth/AuthScreen";
 import { SignedIn, SignedOut, UserButton } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
@@ -71,7 +70,6 @@ export function AppShell() {
   const [getAppOpen, setGetAppOpen] = useState(false);
   const [shelfOpen, setShelfOpen] = useState(false);
   const [homeTick, setHomeTick] = useState(0);
-  const { high: highContrast, toggle: toggleContrast } = useContrast();
   const dayPeriod = useDayPeriod();
 
   useEffect(() => {
@@ -256,114 +254,11 @@ export function AppShell() {
               onClick={() => setSwitchOpen((v) => !v)}
               className="flex items-center gap-2 rounded-md py-1 pl-1 pr-2"
               aria-label="Profile"
+              aria-expanded={switchOpen}
             >
               <Avatar initials={actor?.initials ?? "?"} />
               <span className="hidden text-xs text-muted sm:inline">{actor?.shortName}</span>
             </button>
-            {switchOpen && (
-              <div className="glass absolute right-0 z-30 mt-1 max-h-[min(70vh,calc(100dvh-8rem))] w-64 overflow-y-auto rounded-md p-1">
-                <p className="px-2 py-1.5 text-xs uppercase tracking-wide text-subtle">Profile</p>
-                <div className="px-1 pb-1">
-                  {authPending ? (
-                    <div className="h-10 animate-pulse rounded-sm bg-surface" />
-                  ) : (
-                    <>
-                      <SignedIn>
-                        <div className="rounded-sm px-1 py-1">
-                          <UserButton />
-                        </div>
-                      </SignedIn>
-                      <SignedOut>
-                        <AuthActions compact />
-                      </SignedOut>
-                    </>
-                  )}
-                </div>
-                <Link
-                  to="/profile"
-                  onClick={() => setSwitchOpen(false)}
-                  className="flex h-10 w-full items-center rounded-sm px-2 text-sm text-muted"
-                >
-                  Open profile
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSwitchOpen(false);
-                    setGetAppOpen(true);
-                  }}
-                  className="flex h-10 w-full items-center gap-2 rounded-sm px-2 text-sm text-muted"
-                >
-                  <Smartphone className="size-3.5" />
-                  Get iPhone & Android
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={highContrast}
-                  onClick={() => toggleContrast()}
-                  className={cn(
-                    "flex h-10 w-full items-center gap-2 rounded-sm px-2 text-sm",
-                    highContrast ? "bg-surface text-foreground" : "text-muted",
-                  )}
-                >
-                  <Contrast className="size-3.5" />
-                  High contrast {highContrast ? "on" : "off"}
-                </button>
-                <p className="mt-1 px-2 py-1 text-xs uppercase tracking-wide text-subtle">Preview as</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActor(SELF_ID);
-                    setSwitchOpen(false);
-                  }}
-                  className={cn("flex h-10 w-full items-center gap-2 rounded-sm px-2 text-sm", actorId === SELF_ID ? "bg-surface" : "")}
-                >
-                  <Avatar initials="RM" />
-                  <span className="flex-1 text-left">You</span>
-                </button>
-                {(["family", "friends", "coworkers", "advisors"] as const).map((g) => {
-                  const members = people.filter(
-                    (p) => p.id !== SELF_ID && p.inviteStatus !== "pending" && circleGroup(p.circle) === g,
-                  );
-                  if (!members.length) return null;
-                  return (
-                    <div key={g} className="mb-1">
-                      <p className="px-2 py-1 text-xs uppercase tracking-wide text-subtle">{CIRCLE_GROUP[g].label}</p>
-                      {members.map((p) => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => {
-                            setActor(p.id);
-                            setSwitchOpen(false);
-                          }}
-                          className={cn(
-                            "flex h-10 w-full items-center gap-2 rounded-sm px-2 text-sm",
-                            p.id === actorId ? "bg-surface" : "",
-                          )}
-                        >
-                          <Avatar initials={p.initials} />
-                          <span className="flex-1 truncate text-left">{p.shortName}</span>
-                          <span className="text-xs text-subtle">{p.title}</span>
-                        </button>
-                      ))}
-                    </div>
-                  );
-                })}
-                {actorId === SELF_ID && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSwitchOpen(false);
-                      setInviteOpen(true);
-                    }}
-                    className="mt-1 flex h-10 w-full items-center rounded-sm px-2 text-sm text-muted"
-                  >
-                    Invite contributor
-                  </button>
-                )}
-              </div>
-            )}
           </div>
         </header>
 
@@ -415,9 +310,109 @@ export function AppShell() {
         <button
           type="button"
           aria-label="Dismiss profile"
-          className="fixed inset-0 z-20"
+          className="fixed inset-0 z-40"
           onClick={() => setSwitchOpen(false)}
         />
+      )}
+      {switchOpen && (
+        <div className="glass fixed top-14 right-3 z-50 max-h-[min(70vh,calc(100dvh-8rem))] w-64 overflow-y-auto rounded-md p-1">
+          <p className="px-2 py-1.5 text-xs uppercase tracking-wide text-subtle">Profile</p>
+          <div className="px-1 pb-1">
+            {authPending ? (
+              <div className="h-10 animate-pulse rounded-sm bg-surface" />
+            ) : (
+              <>
+                <SignedIn>
+                  <div className="rounded-sm px-1 py-1">
+                    <UserButton />
+                  </div>
+                </SignedIn>
+                <SignedOut>
+                  <AuthActions compact />
+                </SignedOut>
+              </>
+            )}
+          </div>
+          <Link
+            to="/profile"
+            onClick={() => setSwitchOpen(false)}
+            className="flex h-10 w-full items-center rounded-sm px-2 text-sm text-muted"
+          >
+            Open profile
+          </Link>
+          <Link
+            to="/settings"
+            onClick={() => setSwitchOpen(false)}
+            className="flex h-10 w-full items-center gap-2 rounded-sm px-2 text-sm text-muted"
+          >
+            <Settings className="size-3.5" />
+            Settings
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              setSwitchOpen(false);
+              setGetAppOpen(true);
+            }}
+            className="flex h-10 w-full items-center gap-2 rounded-sm px-2 text-sm text-muted"
+          >
+            <Smartphone className="size-3.5" />
+            Get iPhone & Android
+          </button>
+          <p className="mt-1 px-2 py-1 text-xs uppercase tracking-wide text-subtle">Preview as</p>
+          <button
+            type="button"
+            onClick={() => {
+              setActor(SELF_ID);
+              setSwitchOpen(false);
+            }}
+            className={cn("flex h-10 w-full items-center gap-2 rounded-sm px-2 text-sm", actorId === SELF_ID ? "bg-surface" : "")}
+          >
+            <Avatar initials="RM" />
+            <span className="flex-1 text-left">You</span>
+          </button>
+          {(["family", "friends", "coworkers", "advisors"] as const).map((g) => {
+            const members = people.filter(
+              (p) => p.id !== SELF_ID && p.inviteStatus !== "pending" && circleGroup(p.circle) === g,
+            );
+            if (!members.length) return null;
+            return (
+              <div key={g} className="mb-1">
+                <p className="px-2 py-1 text-xs uppercase tracking-wide text-subtle">{CIRCLE_GROUP[g].label}</p>
+                {members.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setActor(p.id);
+                      setSwitchOpen(false);
+                    }}
+                    className={cn(
+                      "flex h-10 w-full items-center gap-2 rounded-sm px-2 text-sm",
+                      p.id === actorId ? "bg-surface" : "",
+                    )}
+                  >
+                    <Avatar initials={p.initials} />
+                    <span className="flex-1 truncate text-left">{p.shortName}</span>
+                    <span className="text-xs text-subtle">{p.title}</span>
+                  </button>
+                ))}
+              </div>
+            );
+          })}
+          {actorId === SELF_ID && (
+            <button
+              type="button"
+              onClick={() => {
+                setSwitchOpen(false);
+                setInviteOpen(true);
+              }}
+              className="mt-1 flex h-10 w-full items-center rounded-sm px-2 text-sm text-muted"
+            >
+              Invite contributor
+            </button>
+          )}
+        </div>
       )}
       {notifOpen && (
         <div className="fixed inset-0 z-40 flex justify-end">

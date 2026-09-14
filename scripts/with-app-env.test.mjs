@@ -9,8 +9,10 @@ import {
   APP_ENV_REL_PATH,
   mergeAppEnv,
   parseAppEnv,
+  parseDotEnv,
   projectRoot,
   readAppEnv,
+  readSecretsEnv,
 } from "./with-app-env.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -57,6 +59,17 @@ test("an explicit process-env override wins over the file", () => {
   );
   assert.equal(merged.VITE_AUTH_ENABLED, "true");
   assert.equal(merged.PATH, "/usr/bin");
+});
+
+test("parses secrets/.env and skips empty, comments, and VITE_ keys", () => {
+  assert.deepEqual(
+    parseDotEnv('# x\nGOOGLE_CLIENT_ID=abc\nEMPTY=\nVITE_AUTH_ENABLED=true\nSPOTIFY_CLIENT_SECRET="s3"\n'),
+    { GOOGLE_CLIENT_ID: "abc", SPOTIFY_CLIENT_SECRET: "s3" },
+  );
+});
+
+test("a missing secrets/.env is a clean no-op", () => {
+  assert.deepEqual(readSecretsEnv(makeWorkspace()), {});
 });
 
 test("the template ships auth off", () => {

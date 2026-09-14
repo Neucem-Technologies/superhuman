@@ -65,6 +65,38 @@ export function mergeAppEnv(appEnv, processEnv) {
   return { ...appEnv, ...processEnv };
 }
 
+/** Parse a dotenv document. Empty keys, comments, and `VITE_` entries are dropped. */
+export function parseDotEnv(text) {
+  const env = {};
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) continue;
+    const i = line.indexOf("=");
+    if (i <= 0) continue;
+    const key = line.slice(0, i).trim();
+    if (!key || key.startsWith("VITE_")) continue;
+    let value = line.slice(i + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    if (!value) continue;
+    env[key] = value;
+  }
+  return env;
+}
+
+/** Connector keys from `secrets/.env`, or `{}` when the file is absent. */
+export function readSecretsEnv(root) {
+  try {
+    return parseDotEnv(readFileSync(join(root, "secrets", ".env"), "utf8"));
+  } catch {
+    return {};
+  }
+}
+
 /**
  * Translate a child's `exit` `(code, signal)` into this process's exit status.
  *
@@ -110,7 +142,11 @@ function main(argv) {
     console.error("usage: node scripts/with-app-env.mjs <command> [args…]");
     process.exit(2);
   }
-  const env = mergeAppEnv(readAppEnv(projectRoot()), process.env);
+  const root = projectRoot();
+  const env = mergeAppEnv(readAppEnv(root), {
+    ...readSecretsEnv(root),
+    ...process.env,
+  });
   const child = spawn(command, args, { stdio: "inherit", env });
   // The dev server is long-running and is stopped by signalling this wrapper.
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {

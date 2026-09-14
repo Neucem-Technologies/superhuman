@@ -213,7 +213,7 @@ export type BodyMetric = {
 };
 
 export type HealthStream = {
-  source: "apple" | "ultrahuman";
+  source: "apple" | "ultrahuman" | "fitbit";
   hrv: number;
   rhr: number;
   steps: number;
@@ -436,16 +436,22 @@ export type PendingFile = {
 
 export type ConnectorId =
   | "google"
+  | "google-tasks"
   | "apple-health"
   | "whatsapp"
+  | "slack"
+  | "microsoft"
   | "makemytrip"
   | "airbnb"
   | "ultrahuman"
+  | "fitbit"
   | "youtube"
   | "spotify"
   | "bank"
   | "gst"
   | "google-drive"
+  | "dropbox"
+  | "notion"
   | "amazon"
   | "bigbasket";
 export type ConnectorStatus = "disconnected" | "connected";

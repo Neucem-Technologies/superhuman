@@ -61,19 +61,27 @@
   html,
   body,
   #app {
-    background-color: #0a0a0b;
+    background-color: transparent;
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-size: 14.11px;
+    font-size: 1rem;
     line-height: 1.65;
     min-height: 100dvh;
     color-scheme: dark;
   }
 
   html {
+    --font-scale: 1;
+    background-color: #0a0a0b;
+    font-size: calc(14.11px * var(--font-scale));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  html[data-font-scale="90"] { --font-scale: 0.9; }
+  html[data-font-scale="100"] { --font-scale: 1; }
+  html[data-font-scale="115"] { --font-scale: 1.15; }
+  html[data-font-scale="130"] { --font-scale: 1.3; }
 
   * {
     scrollbar-width: thin;
@@ -109,13 +117,13 @@
     background:
       linear-gradient(
         165deg,
-        rgba(255, 255, 255, 0.09) 0%,
-        rgba(16, 18, 28, 0.42) 46%,
-        rgba(8, 10, 18, 0.62) 100%
+        rgba(255, 255, 255, 0.06) 0%,
+        rgb(var(--tile-rgb) / calc(var(--tile-fill) * 0.73)) 46%,
+        rgb(var(--tile-rgb) / var(--tile-fill)) 100%
       );
-    background-color: rgba(12, 14, 22, 0.55);
-    backdrop-filter: blur(36px) saturate(1.7);
-    -webkit-backdrop-filter: blur(36px) saturate(1.7);
+    background-color: rgb(var(--tile-rgb) / var(--tile-fill));
+    backdrop-filter: blur(var(--tile-blur)) saturate(1.15);
+    -webkit-backdrop-filter: blur(var(--tile-blur)) saturate(1.15);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.16),
       inset 0 -0.5px 0 rgba(255, 255, 255, 0.04),
@@ -147,17 +155,31 @@
   html {
     --day-vignette: radial-gradient(
       120% 85% at 50% 8%,
-      transparent 38%,
-      color-mix(in oklab, var(--color-background) 36%, transparent) 100%
+      transparent 42%,
+      color-mix(in oklab, var(--color-background) 22%, transparent) 100%
     );
     --day-horizon: linear-gradient(
       180deg,
       transparent 0%,
-      color-mix(in oklab, var(--color-background) 18%, transparent) 52%,
-      color-mix(in oklab, var(--color-background) 42%, transparent) 100%
+      color-mix(in oklab, var(--color-background) 10%, transparent) 58%,
+      color-mix(in oklab, var(--color-background) 28%, transparent) 100%
     );
     --day-image: none;
+    --tile-fill: 0.2;
+    --tile-blur: 16px;
+    --tile-rgb: 12 14 22;
   }
+
+  html[data-tile-fill="20"] { --tile-fill: 0.2; }
+  html[data-tile-fill="30"] { --tile-fill: 0.3; }
+  html[data-tile-fill="40"] { --tile-fill: 0.4; }
+  html[data-tile-fill="50"] { --tile-fill: 0.5; }
+  html[data-tile-fill="70"] { --tile-fill: 0.7; }
+  html[data-tile-blur="8"] { --tile-blur: 8px; }
+  html[data-tile-blur="12"] { --tile-blur: 12px; }
+  html[data-tile-blur="16"] { --tile-blur: 16px; }
+  html[data-tile-blur="24"] { --tile-blur: 24px; }
+  html[data-tile-blur="32"] { --tile-blur: 32px; }
 
   html[data-period="morning"] { --day-image: url("/today/morning.jpg?v=3"); }
   html[data-period="afternoon"] { --day-image: url("/today/afternoon.jpg?v=3"); }
@@ -421,13 +443,13 @@
     background:
       linear-gradient(
         165deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(16, 18, 28, 0.4) 44%,
-        rgba(8, 10, 18, 0.62) 100%
+        rgba(255, 255, 255, 0.06) 0%,
+        rgb(var(--tile-rgb) / calc(var(--tile-fill) * 0.67)) 44%,
+        rgb(var(--tile-rgb) / var(--tile-fill)) 100%
       );
-    background-color: rgba(12, 14, 22, 0.55);
-    backdrop-filter: blur(36px) saturate(1.7);
-    -webkit-backdrop-filter: blur(36px) saturate(1.7);
+    background-color: rgb(var(--tile-rgb) / var(--tile-fill));
+    backdrop-filter: blur(var(--tile-blur)) saturate(1.15);
+    -webkit-backdrop-filter: blur(var(--tile-blur)) saturate(1.15);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.16),
       inset 0 -0.5px 0 rgba(255, 255, 255, 0.04),
@@ -463,13 +485,13 @@
     background:
       linear-gradient(
         165deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        color-mix(in oklab, var(--widget-tint) 16%, transparent) 48%,
-        rgba(8, 10, 18, 0.6) 100%
+        rgba(255, 255, 255, 0.06) 0%,
+        color-mix(in oklab, var(--widget-tint) calc(var(--tile-fill) * 27%), transparent) 48%,
+        rgb(var(--tile-rgb) / var(--tile-fill)) 100%
       );
-    background-color: rgba(12, 14, 22, 0.52);
-    backdrop-filter: blur(36px) saturate(1.7);
-    -webkit-backdrop-filter: blur(36px) saturate(1.7);
+    background-color: rgb(var(--tile-rgb) / var(--tile-fill));
+    backdrop-filter: blur(var(--tile-blur)) saturate(1.15);
+    -webkit-backdrop-filter: blur(var(--tile-blur)) saturate(1.15);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.16),
       inset 0 -0.5px 0 rgba(255, 255, 255, 0.04),
@@ -482,6 +504,13 @@
   .widget-tile p,
   .widget-tile li {
     line-height: 1.65;
+    color: #f4f4f5;
+  }
+  .widget-tile .text-muted {
+    color: #e4e4e7;
+  }
+  .widget-tile .text-subtle {
+    color: #d4d4d8;
   }
 
   .tile-head .widget-mark {

@@ -62,11 +62,11 @@ export const Route = createRootRoute({
         <HeadContent />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{if(localStorage.getItem("sh-contrast")==="high")localStorage.setItem("sh-contrast","normal");document.documentElement.dataset.contrast="normal";var h=Number(new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Kolkata",hour:"2-digit",hourCycle:"h23"}).format(new Date()));document.documentElement.dataset.period=h>=5&&h<11?"morning":h>=11&&h<16?"afternoon":h>=16&&h<19?"evening":"night"}catch(e){document.documentElement.dataset.contrast="normal"}})()`,
+            __html: `(function(){try{if(localStorage.getItem("sh-contrast")==="high")localStorage.setItem("sh-contrast","normal");document.documentElement.dataset.contrast="normal";var theme=localStorage.getItem("ls-theme")||"auto";var h=Number(new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Kolkata",hour:"2-digit",hourCycle:"h23"}).format(new Date()));var auto=h>=5&&h<11?"morning":h>=11&&h<16?"afternoon":h>=16&&h<19?"evening":"night";var period=theme==="morning"||theme==="afternoon"||theme==="evening"||theme==="night"?theme:auto;document.documentElement.dataset.theme=theme==="morning"||theme==="afternoon"||theme==="evening"||theme==="night"?theme:"auto";document.documentElement.dataset.period=period;var fs=Number(localStorage.getItem("ls-font-scale"));if(fs===90||fs===100||fs===115||fs===130){document.documentElement.style.setProperty("--font-scale",String(fs/100));document.documentElement.dataset.fontScale=String(fs)}}catch(e){document.documentElement.dataset.contrast="normal"}})()`,
           }}
         />
       </head>
-      <body className="bg-background text-foreground font-sans">
+      <body className="text-foreground font-sans">
         <DayStack />
         <PreviewHostBridge />
         <AuthProvider>

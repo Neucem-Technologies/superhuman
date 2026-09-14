@@ -408,7 +408,7 @@ export function BoardHome() {
   const parked = f.mode === "low" ? f.pendingTasks.filter((t) => !t.tiny) : [];
 
   return (
-    <div className="stagger-in space-y-3">
+    <div className="stagger-in space-y-6">
       <TodayHeader />
 
       <section data-tint="growth" className="widget-tile overflow-hidden rounded-xl p-3">
@@ -915,7 +915,7 @@ function ShelfWidgets({ variant = "grid", title }: { variant?: "grid" | "rail" |
       ) : variant === "split" ? (
         <div className="space-y-2">
           {pinned.length > 0 && (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-5">
               {pinned.map((w) => {
                 const card = byId.get(w.id);
                 if (!card) return null;
@@ -942,7 +942,7 @@ function ShelfWidgets({ variant = "grid", title }: { variant?: "grid" | "rail" |
           })}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-x-2 gap-y-5">
           {shown.map((w) => {
             const card = byId.get(w.id);
             if (!card) return null;
