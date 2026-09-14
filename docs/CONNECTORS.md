@@ -12,7 +12,7 @@ Paste values in **`secrets/.env`** (gitignored). Copy from `secrets/.env.example
 | Slack | Work | Slack app, then distribution review |
 | Microsoft (Outlook, To Do, OneDrive) | Work · Files | Entra ID app + publisher verification |
 | WhatsApp | Work · Notes | Meta Business + Cloud API |
-| Apple Health | Health | HealthKit on iPhone (no web key) |
+| Apple Health | Health | HealthKit on iPhone (no web key) — companion in `mobile/` |
 | UltraHuman | Health | Partner cloud |
 | Fitbit | Health | Fitbit Web API + app review |
 | MakeMyTrip | Travel | Affiliate / partner contract |
